@@ -37,5 +37,5 @@ def postAttachment(tid: str, payload: dict):
     '''upload an attachment'''
     return _call(
         url="https://api.quickbase.com/v1/records",
-        json={"to": tid, "data": payload, "fieldsToReturn": [7,8,9]}
+        json={"to": tid, "data": payload, "fieldsToReturn": [6,8,9]}
     )

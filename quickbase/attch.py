@@ -1,37 +1,33 @@
 '''upload attachments to agreements table in quickbase'''
 
 import base64
-from pathlib import Path
-import json
 import logging
 import glob
+from pathlib import Path
 
+from . import args
+from .const import AGR_TBL, ATT_TBL, QID, REPFIDS, FDIR
 from .api import getReport, postAttachment
 
-WD = "/home/ubuntu/projects/finity/siue/siue-python"
-FDIR = f"{WD}/data/attachments/"
-TID = "bvt33a9pv" # agreements table
-QID = 7 # report to get agreement rid, rel counterparty name
-
-REPFIDS = ["3", "11"] # fields from report: rid and related counterparty name 
-REL_AGR = "7" # field id for related agreement in attachment table
-
 def extract(
-        tid: str = TID,
+        tid: str = AGR_TBL,
         qid: int = QID,
-        repfids: list[str] = REPFIDS
+        repfids: tuple[str] = REPFIDS
         ) -> tuple[dict[str, str], list[str]]:
-    '''get report data and pdf paths'''
+    '''return report data and pdf paths'''
+
     r = getReport(tid, qid)
-    logging.info(r.status_code)
+    logging.info("< %-4s recs read", r.json()['metadata']['numRecords'])
 
     return {
-        rec[repfids[0]]["value"]: rec[repfids[1]]["value"] 
+        rec[repfids[0]]["value"]: rec[repfids[1]]["value"]
             for rec in r.json()["data"]
         }, sorted(glob.glob(f"{FDIR}/*.pdf"))
 
-def transform(agrs, pdfs):
-    uplist = list()
+def transform(agrs: dict[str, str], pdfs: list[str]) -> list[dict]:
+    '''create payload'''
+    uplist = []
+
     for pdf in pdfs:
         for rid, name in agrs.items():
             fn = Path(pdf).name
@@ -39,9 +35,15 @@ def transform(agrs, pdfs):
             if match in name:
                 with open(pdf, "rb") as f:
                     file_base64 = base64.b64encode(f.read()).decode("utf-8")
-                logging.info("PDF: %s AGR: %s RID: %s", fn, name, rid)
+
+                title = " ".join(Path(fn).stem.split("_")[1:3]).strip()
+                logging.info("> PDF: %-65s AGR: %-50s TIT: %-40s RID: %-3s", fn, name, title, rid)
+
                 uplist.append(
                     {
+                        "6": {
+                            "value": title
+                        },
                         "7": {"value": rid},
                         "8": {
                             "value": {
@@ -56,15 +58,26 @@ def transform(agrs, pdfs):
 
 def load(body: list[dict]):
     '''upload attachments to quickbase'''
-    r = postAttachment(TID, body)
-    logging.info(r.status_code)
-    logging.info(r.text)
+    r = postAttachment(ATT_TBL, body)
+    for rec in r.json()['data']:
+        logging.info(
+            "< PDF: %-65s AGR: %-50s TIT: %-40s",
+            rec["8"]["value"]["versions"][0]["fileName"],
+            rec["9"]["value"],
+            rec["6"]["value"]
+        )
+
+    logging.info("< created rids: %s", r.json()['metadata']['createdRecordIds'])
+    logging.info("# %-4s", r.json()['metadata']['totalNumberOfRecordsProcessed'])
 
 def _main():
+    logging.info("DRY RUN" if args.dry_run else "START")
 
     agr_rids, pdf_paths = extract()
     body = transform(agr_rids, pdf_paths)
-    load(body)
+
+    if not args.dry_run:
+        load(body)
 
 if __name__ == "__main__":
     _main()
