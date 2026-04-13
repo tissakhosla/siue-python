@@ -2,7 +2,8 @@
 import os
 
 WD = os.getcwd()
-FDIR = f"{WD}/data/attachments/"
+FDIR = "/home/ubuntu/projects/finity/siue/attachments"
+# FDIR = f"{WD}/data/attachments/"
 
 # agreements tbl, attachments tbl
 # report to get 'agr rid', 'rel counterparty name'
