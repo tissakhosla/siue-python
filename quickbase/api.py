@@ -1,16 +1,7 @@
 '''api calls to quickbase'''
 
 import requests
-
-REALM = "siue.quickbase.com"
-AUTH = "b6taeb_rvnb_0_bpeiumtc86rkcw3yxckwtjymba"
-
-HDR = {
-    "Content-Type": "application/json",
-    "QB-Realm-Hostname": REALM,
-    "User-Agent": "tk-python-upload-attachments",
-    "Authorization": f"QB-USER-TOKEN {AUTH}",
-}
+from .const import HDR
 
 def _call(url: str, headers: dict | None = None, timeout: int = 30, **kwargs):
     return requests.post(

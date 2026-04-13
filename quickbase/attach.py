@@ -4,6 +4,7 @@ import base64
 import logging
 import glob
 from pathlib import Path
+from locale import getpreferredencoding
 
 from . import args
 from .const import AGR_TBL, ATT_TBL, QID, REPFIDS, FDIR
@@ -34,7 +35,7 @@ def transform(agrs: dict[str, str], pdfs: list[str]) -> list[dict]:
             match = fn.split("_")[0]
             if match in name:
                 with open(pdf, "rb") as f:
-                    file_base64 = base64.b64encode(f.read()).decode("utf-8")
+                    file_base64 = base64.b64encode(f.read()).decode(getpreferredencoding())
 
                 title = " ".join(Path(fn).stem.split("_")[1:3]).strip()
                 logging.info("> PDF: %-65s AGR: %-50s TIT: %-40s RID: %-3s", fn, name, title, rid)
@@ -71,13 +72,14 @@ def load(body: list[dict]):
     logging.info("# %-4s", r.json()['metadata']['totalNumberOfRecordsProcessed'])
 
 def _main():
-    logging.info("DRY RUN" if args.dry_run else "START")
+    logging.info("START DRY RUN" if args.dry_run else "START")
 
     agr_rids, pdf_paths = extract()
     body = transform(agr_rids, pdf_paths)
 
     if not args.dry_run:
         load(body)
-
+    
+    logging.info("END")
 if __name__ == "__main__":
     _main()
