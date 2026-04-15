@@ -8,7 +8,7 @@ import os
 from quickbase.const import FDIR
 
 def extract(base_dir: str):
-    """Return (files, empty_dirs) relative to base_dir."""
+    """Return (files, _) relative to base_dir."""
     file_paths = []
     empty_dirs = []
     for root, dirs, filenames in os.walk(base_dir):
@@ -52,16 +52,16 @@ def write_map_csv(csv_path: str, file_paths: list[str]):
             )
 
 if __name__ == "__main__":
-    file_paths, empty_dirs = extract(FDIR)
+    f_paths, _ = extract(FDIR)
     log.info("START")
-    
+
     out_dir = os.path.join(".", "data")
     os.makedirs(out_dir, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     out_path = os.path.join(out_dir, f"map-{timestamp}.csv")
 
-    write_map_csv(out_path, file_paths)
+    write_map_csv(out_path, f_paths)
 
     log.info("WROTE CSV %s", out_path)
     log.info("END")

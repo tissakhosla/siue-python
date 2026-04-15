@@ -1,4 +1,4 @@
-'''upload attachments to agreements table in quickbase'''
+'''bulk upload attachments to attachments table in agreement tracker'''
 
 import base64
 import logging
@@ -6,7 +6,7 @@ import glob
 from pathlib import Path
 from locale import getpreferredencoding
 
-from . import args
+from argparsers.attach import args
 from .const import AGR_TBL, ATT_TBL, QID, REPFIDS, FDIR
 from .api import getReport, postAttachment
 
