@@ -1,7 +1,7 @@
 '''api calls to quickbase'''
 
 import requests
-from .const import HDR, RET_FIDS
+from .const import HDR, ATTACH_RET_FIDS, FULFILL_RET_FIDS
 
 def _call(url: str, headers: dict | None = None, timeout: int = 30, **kwargs):
     return requests.post(
@@ -28,5 +28,12 @@ def postAttachment(tid: str, payload: dict):
     '''upload an attachment'''
     return _call(
         url="https://api.quickbase.com/v1/records",
-        json={"to": tid, "data": payload, "fieldsToReturn": RET_FIDS}
+        json={"to": tid, "data": payload, "fieldsToReturn": ATTACH_RET_FIDS}
+    )
+
+def postFulfillment(tid: str, payload: dict):
+    '''upload a fulfillment attachment'''
+    return _call(
+        url="https://api.quickbase.com/v1/records",
+        json={"to": tid, "data": payload, "fieldsToReturn": FULFILL_RET_FIDS}
     )
