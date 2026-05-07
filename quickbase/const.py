@@ -9,8 +9,11 @@ FDIR = "/home/ubuntu/projects/finity/siue/attachments"
 # report to get 'agr rid', 'rel counterparty name'
 # fid for rel agr in attachment tbl
 # fids for posting attachment (title, file, rel agr name)
-AGR_TBL, ATT_TBL = "bvt33a9pv", "bvv3u52mn"
+AGR_TBL = "bvt33a9pv"
 QID, REPFIDS = 7, ("3", "11")
+
+ATT_TBL = "bvv3u52mn"
+ATT_QID = 7
 
 ATTACH_TITLE, ATTACH_REL_AGR, ATTACH_FILE, REL_AGR_NAME, \
 ATTACH_TYPE, ATTACH_REL_FUL, REL_OBL_AGR_NAME \
